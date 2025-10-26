@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AIDEX — Plataforma de trading (Dark)</title>
+
+  <!-- =========================
+       Estilos (Dark-first)
+       ========================= -->
+  <style>
+    /* ---- Variables de tema ---- */
+    :root{
+      --bg-1: #05060a;        /* fondo principal muy oscuro */
+      --bg-2: #0b1117;        /* secciones / paneles */
+      --card: #0f1720;
+      --muted: #98a1ad;
+      --text: #e6eef6;
+      --accent: #0ea5ff;      /* azul eléctrico */
+      --accent-2: #2563eb;    /* azul profundo */
+      --glass: rgba(255,255,255,0.02);
+      --border: rgba(255,255,255,0.04);
+      --radius: 12px;
+      --max-w: 1200px;
+      --shadow: 0 10px 30px rgba(2,6,23,0.7);
+    }
+
+    /* ---- Reset y base ---- */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,var(--bg-1) 0%, var(--bg-2) 100%);
+      color:var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding-bottom:90px;
+    }
+    a{color:var(--accent); text-decoration:none}
+    img{max-width:100%; display:block}
+    .container{max-width:var(--max-w); margin:0 auto; padding:0 20px;}
+
+    /* ---- Header / Navbar ---- */
+    header{
+      position:sticky; top:0; z-index:60;
+      backdrop-filter: blur(6px);
+      background: linear-gradient(180deg, rgba(6,8,12,0.65), rgba(6,10,16,0.40));
+      border-bottom: 1px solid var(--border);
+    }
+    .nav{height:72px; display:flex; align-items:center; justify-content:space-between; gap:16px;}
+    .brand{display:flex; align-items:center; gap:12px; font-weight:700}
+    .logo{
+      width:46px; height:46px; border-radius:10px;
+      background: linear-gradient(135deg,var(--accent-2),var(--accent));
+      display:flex; align-items:center; justify-content:center; color:#021; font-weight:800; font-size:16px;
+      box-shadow: 0 8px 28px rgba(37,99,235,0.12);
+    }
+    .brand .texts{line-height:1}
+    .brand .name{font-size:16px}
+    .brand .tag{font-size:12px; color:var(--muted)}
+
+    nav.desktop{display:flex; gap:14px; align-items:center}
+    nav.desktop a{padding:8px 10px; border-radius:8px; color:var(--muted); font-size:15px}
+    nav.desktop a:hover{background:var(--glass); color:var(--accent)}
+
+    .cta{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      color:#021; font-weight:700; border-radius:10px;
+      box-shadow: 0 12px 36px rgba(14,165,255,0.12);
+    }
+
+    .hamburger{display:none; background:transparent; border:0; color:var(--muted); font-size:20px; padding:8px; border-radius:8px}
+    .mobile-menu{display:none; padding:10px 0}
+
+    /* ---- Hero ---- */
+    .hero{padding:56px 0 36px}
+    .hero-grid{display:grid; grid-template-columns:1fr 520px; gap:28px; align-items:center}
+    .hero-title{font-size:36px; margin:0 0 12px; font-weight:800; line-height:1.05}
+    .hero-sub{color:var(--muted); max-width:60ch}
+    .hero-cta{display:flex; gap:12px; margin-top:18px}
+    .stat-row{display:flex; gap:12px; margin-top:18px}
+    .stat{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      padding:12px 16px; border-radius:10px; border:1px solid var(--border);
+      font-weight:700; color:var(--text); font-size:15px;
+    }
+
+    .hero-card{
+      border-radius:14px; overflow:hidden; box-shadow:var(--shadow); border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.45));
+    }
+    .hero-image{width:100%; height:320px; object-fit:cover; display:block; filter:contrast(1.05) saturate(1.05)}
+
+    /* ---- Sections ---- */
+    section{padding:48px 0}
+    .section-title{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px}
+    .section-title h2{margin:0; font-size:20px}
+    .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+    .card{
+      background:var(--card); border-radius:12px; padding:18px; border:1px solid var(--border);
+      box-shadow: 0 8px 20px rgba(2,6,23,0.45);
+    }
+    .card h3{margin:0; font-size:16px}
+    .card p{color:var(--muted); margin-top:8px; font-size:14px}
+
+    /* Platforms grid */
+    .platforms-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+    .platform{
+      padding:14px; border-radius:10px; background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      text-align:center; border:1px solid var(--border)
+    }
+
+    /* Education */
+    .resources{display:flex; gap:12px; flex-wrap:wrap}
+    .resource{min-width:200px; padding:12px; border-radius:10px; border:1px solid var(--border); background:var(--glass)}
+
+    /* Footer */
+    footer{padding:30px 0 80px; background:transparent}
+    .footer-grid{display:flex; gap:30px; flex-wrap:wrap; align-items:flex-start; justify-content:space-between}
+    .socials{display:flex; gap:8px}
+    .socials a{padding:8px; border-radius:10px; background:var(--glass); color:var(--muted); font-weight:600}
+
+    /* Floating CTA */
+    .floating-cta{position:fixed; right:18px; bottom:18px; padding:12px 16px; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#021; box-shadow:0 12px 40px rgba(14,165,255,0.14); z-index:50; display:none}
+    @media (max-width:680px){ .floating-cta{display:inline-flex} }
+
+    /* Reveal animation simple */
+    .fade-up{opacity:0; transform:translateY(8px); animation:fadeUp .7s forwards}
+    .fade-up.delay-1{animation-delay:.12s}
+    .fade-up.delay-2{animation-delay:.22s}
+    @keyframes fadeUp{to{opacity:1; transform:none}}
+
+    /* small helpers */
+    .muted{color:var(--muted)}
+    .small{font-size:13px}
+    .pill{display:inline-block; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.02); font-weight:600; color:var(--text)}
+
+    /* Responsive */
+    @media (max-width:980px){
+      .hero-grid{grid-template-columns:1fr; gap:20px}
+      .cards{grid-template-columns:repeat(2,1fr)}
+      .platforms-grid{grid-template-columns:repeat(2,1fr)}
+      nav.desktop{display:none}
+      .hamburger{display:inline-block}
+      .mobile-menu{display:block}
+    }
+    @media (max-width:640px){
+      .cards{grid-template-columns:1fr}
+      .hero-image{height:220px}
+      .brand .texts{display:none}
+      #chat-box{width:calc(100vw - 24px); right:12px; bottom:82px}
+    }
+
+    /* ---- Chat styles (bubble + window) ---- */
+    /* Bubble */
+    #chat-bubble {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      background: linear-gradient(90deg,var(--accent),var(--accent-2));
+      color: #021;
+      font-size: 22px;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 12px 36px rgba(37,99,235,0.12);
+      z-index:120;
+      animation: float 2.4s ease-in-out infinite;
+      transition: transform 0.3s ease;
+    }
+    #chat-bubble:hover{transform:scale(1.05)}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+    /* Chat window */
+    #chat-box {
+      position: fixed;
+      right: 22px;
+      bottom: 92px;
+      width: 360px;
+      max-height: 500px;
+      background: linear-gradient(180deg, rgba(10,14,20,0.95), rgba(11,16,22,0.93));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,0.85);
+      display: flex; flex-direction: column; overflow: hidden; z-index:125;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    #chat-box.hidden{
+      opacity:0;
+      transform:translateY(20px) scale(0.95);
+      pointer-events:none;
+    }
+
+    .chat-header {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color:#021; font-weight:700; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;
+    }
+    .chat-header .title{font-size:15px; display:flex; align-items:center; gap:8px}
+    .chat-header button{background:transparent;border:0;color:#021;font-size:18px;cursor:pointer; padding:4px 8px; border-radius:6px; transition:background 0.2s}
+    .chat-header button:hover{background:rgba(0,0,0,0.1)}
+
+    #chat-body {
+      flex:1; padding:14px; overflow-y:auto; font-size:14px; display:flex; flex-direction:column; gap:10px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.01));
+      max-height:360px;
+    }
+    #chat-body::-webkit-scrollbar{width:6px}
+    #chat-body::-webkit-scrollbar-track{background:transparent}
+    #chat-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1); border-radius:3px}
+
+    .bot-message, .user-message {
+      max-width:85%; padding:11px 13px; border-radius:12px; line-height:1.4; word-wrap:break-word;
+      animation: messageSlide 0.3s ease;
+    }
+    @keyframes messageSlide{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:translateY(0)}}
+    
+    .bot-message { 
+      background: rgba(255,255,255,0.04); 
+      color:var(--text); 
+      border:1px solid var(--border); 
+      align-self:flex-start;
+      white-space: pre-line;
+    }
+    .user-message { 
+      background: linear-gradient(90deg,var(--accent),var(--accent-2)); 
+      color:#021; 
+      align-self:flex-end;
+      font-weight:500;
+    }
+
+    .typing {
+      display:inline-flex; 
+      align-items:center;
+      padding:11px 13px; 
+      background:rgba(255,255,255,0.04); 
+      border-radius:12px; 
+      border:1px solid var(--border);
+      align-self:flex-start;
+    }
+    .dots{display:flex; gap:4px}
+    .dots span{display:inline-block; width:7px; height:7px; background:rgba(255,255,255,0.4); border-radius:50%; animation: blink 1.2s infinite}
+    .dots span:nth-child(2){animation-delay:.2s} 
+    .dots span:nth-child(3){animation-delay:.4s}
+    @keyframes blink{0%,100%{opacity:.3; transform:scale(0.8)}50%{opacity:1; transform:scale(1.1)}}
+
+    .chat-input { 
+      display:flex; 
+      gap:8px; 
+      padding:12px; 
+      border-top:1px solid var(--border); 
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent) 
+    }
+    .chat-input input { 
+      flex:1; 
+      padding:11px 14px; 
+      border-radius:10px; 
+      border:1px solid rgba(255,255,255,0.06); 
+      background:rgba(255,255,255,0.02); 
+      color:var(--text); 
+      outline:none;
+      font-size:14px;
+      transition:border 0.2s;
+    }
+    .chat-input input:focus{border-color:var(--accent)}
+    .chat-input button { 
+      padding:11px 16px; 
+      border-radius:10px; 
+      border:0; 
+      background:linear-gradient(90deg,var(--accent),var(--accent-2)); 
+      color:#021; 
+      font-weight:700; 
+      cursor:pointer;
+      transition:transform 0.2s;
+      font-size:14px;
+    }
+    .chat-input button:hover{transform:scale(1.02)}
+    .chat-input button:active{transform:scale(0.98)}
+
+  </style>
+</head>
+<body>
+
+  <!-- =========== HEADER / NAV =========== -->
+  <header>
+    <div class="container nav" role="banner">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="brand" aria-label="AIDEX">
+          <div class="logo" aria-hidden="true">AX</div>
+          <div class="texts">
+            <div class="name">AIDEX</div>
+            <div class="tag">Trading · Educación · Soporte</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="desktop" aria-label="Navegación principal">
+        <a href="#home">Inicio</a>
+        <a href="#accounts">Tipos de cuenta</a>
+        <a href="#instruments">Instrumentos</a>
+        <a href="#platforms">Plataformas</a>
+        <a href="#education">Educación</a>
+        <a href="#about">Acerca</a>
+      </nav>
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <a href="#open-account" class="cta" aria-label="Abrir cuenta demo">Abrir cuenta demo</a>
+        <button class="hamburger" id="btnMenu" aria-expanded="false" aria-controls="mobileMenu" aria-label="Abrir menú">☰</button>
+      </div>
+    </div>
+
+    <!-- Mobile menu simple -->
+    <div class="container mobile-menu" id="mobileMenu" style="display:none" aria-hidden="true">
+      <a href="#home">Inicio</a>
+      <a href="#accounts">Tipos de cuenta</a>
+      <a href="#instruments">Instrumentos</a>
+      <a href="#platforms">Plataformas</a>
+      <a href="#education">Educación</a>
+      <a href="#about">Acerca</a>
+      <a href="#open-account" style="display:inline-block;margin-top:8px;padding:10px;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:8px;color:#021;font-weight:700">Abrir cuenta demo</a>
+    </div>
+  </header>
+
+  <!-- =========== HERO =========== -->
+  <main>
+    <section id="home" class="hero">
+      <div class="container hero-grid">
+        <div>
+          <h1 class="hero-title fade-up">Plataforma profesional para traders modernos</h1>
+          <p class="hero-sub fade-up delay-1">Opera Forex, CFDs y criptomonedas con herramientas profesionales, recursos educativos y soporte para ayudarte a empezar con confianza.</p>
+
+          <div class="hero-cta fade-up delay-2">
+            <a href="#open-account" class="cta">Abrir cuenta demo</a>
+            <a href="#education" class="pill">Ver recursos gratuitos</a>
+          </div>
+
+          <div class="stat-row fade-up delay-2">
+            <div class="stat">+200 Instrumentos</div>
+            <div class="stat">Soporte 24/5</div>
+            <div class="stat">MT4 / MT5</div>
+          </div>
+        </div>
+
+        <div class="hero-card fade-up" aria-hidden="false">
+          <img class="hero-image" src="https://images.unsplash.com/photo-1559526324-593bc073d938?q=80&w=1600&auto=format&fit=crop&s=0" alt="Gráfica de trading">
+          <div style="padding:16px;color:var(--muted);font-size:14px">
+            <div class="small muted">Mercado financiero global</div>
+            <div style="font-weight:700;margin-top:6px">Toma decisiones con datos y herramientas en tiempo real</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========== Tipos de cuenta =========== -->
+    <section id="accounts">
+      <div class="container">
+        <div class="section-title">
+          <h2>Tipos de cuenta</h2>
+          <div class="muted small">Elige según tu nivel y capital</div>
+        </div>
+
+        <div class="cards">
+          <div class="card fade-up">
+            <h3>Micro</h3>
+            <p class="muted">Depósito mínimo: $5 • Apalancamiento: 1:30</p>
+            <p class="small muted" style="margin-top:12px">Cuenta para principiantes, spreads reducidos y lotes pequeños.</p>
+            <div style="margin-top:14px"><a class="pill" href="#open-account">Abrir demo</a></div>
+          </div>
+
+          <div class="card fade-up">
+            <h3>Estándar</h3>
+            <p class="muted">Depósito mínimo: $100 • Apalancamiento: 1:100</p>
+            <p class="small muted" style="margin-top:12px">Para traders en crecimiento que requieren más flexibilidad.</p>
+            <div style="margin-top:14px"><a class="pill" href="#open-account">Abrir demo</a></div>
+          </div>
+
+          <div class="card fade-up">
+            <h3>Profesional</h3>
+            <p class="muted">Depósito mínimo: $1000 • Apalancamiento: 1:200</p>
+            <p class="small muted" style="margin-top:12px">Spreads más bajos y soporte premium.</p>
+            <div style="margin-top:14px"><a class="pill" href="#open-account">Abrir demo</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========== Instrumentos =========== -->
+    <section id="instruments" style="background:linear-gradient(180deg,transparent, rgba(255,255,255,0.01))">
+      <div class="container">
+        <div class="section-title">
+          <h2>Instrumentos financieros</h2>
+          <div class="muted small">Diversifica tu portafolio</div>
+        </div>
+
+        <div class="platforms-grid" style="margin-bottom:12px">
+          <div class="platform fade-up"><strong>Forex</strong><div class="muted small">Pares principales y exóticos</div></div>
+          <div class="platform fade-up"><strong>CFDs</strong><div class="muted small">Acciones, índices y ETFs</div></div>
+          <div class="platform fade-up"><strong>Criptomonedas</strong><div class="muted small">BTC, ETH y más</div></div>
+          <div class="platform fade-up"><strong>Metales</strong><div class="muted small">Oro, Plata</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========== Plataformas =========== -->
+    <section id="platforms">
+      <div class="container">
+        <div class="section-title">
+          <h2>Plataformas</h2>
+          <div class="muted small">Escoge cómo operar</div>
+        </div>
+
+        <div class="platforms-grid">
+          <div class="platform fade-up"><h3>MetaTrader 4</h3><p class="muted small">Indicadores y EA compatibles</p><div style="margin-top:10px"><a class="pill">Descargar</a></div></div>
+          <div class="platform fade-up"><h3>MetaTrader 5</h3><p class="muted small">Herramientas avanzadas y más mercados</p><div style="margin-top:10px"><a class="pill">Descargar</a></div></div>
+          <div class="platform fade-up"><h3>WebTrader</h3><p class="muted small">Opera desde el navegador</p><div style="margin-top:10px"><a class="pill">Abrir</a></div></div>
+          <div class="platform fade-up"><h3>App móvil</h3><p class="muted small">iOS y Android</p><div style="margin-top:10px"><a class="pill">Descargar</a></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========== Educación =========== -->
+    <section id="education" style="background:linear-gradient(180deg, transparent, rgba(255,255,255,0.01))">
+      <div class="container">
+        <div class="section-title">
+          <h2>Recursos educativos</h2>
+          <div class="muted small">Guías, webinars y herramientas</div>
+        </div>
+
+        <div class="resources">
+          <div class="resource fade-up"><strong>Guía para principiantes</strong><div class="muted small">Artículo</div></div>
+          <div class="resource fade-up"><strong>Webinar: Análisis técnico</strong><div class="muted small">Grabación</div></div>
+          <div class="resource fade-up"><strong>Calendario económico</strong><div class="muted small">Herramienta</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========== Acerca =========== -->
+    <section id="about">
+      <div class="container" style="text-align:center; max-width:880px">
+        <h2>Acerca de AIDEX</h2>
+        <p class="muted small" style="margin-top:12px">
+          AIDEX es una plataforma diseñada para facilitar el acceso a los mercados financieros.
+          Combinamos tecnología, educación y soporte para que los traders (principiantes y avanzados) tomen decisiones informadas.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========== FOOTER =========== -->
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <div style="font-weight:700">AIDEX</div>
+        <div class="muted small" style="margin-top:6px">Plataforma de trading y educación</div>
+      </div>
+
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700">Legal</div>
+          <div class="muted small" style="margin-top:8px">Política de privacidad<br>Términos y condiciones</div>
+        </div>
+        <div>
+          <div style="font-weight:700">Soporte</div>
+          <div class="muted small" style="margin-top:8px">Contacto<br>FAQ</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-weight:700">Síguenos</div>
+        <div class="socials" style="margin-top:8px">
+          <a href="#" aria-label="Twitter">TW</a>
+          <a href="#" aria-label="LinkedIn">IN</a>
+          <a href="#" aria-label="Facebook">FB</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="margin-top:18px;text-align:center;color:var(--muted);font-size:13px">
+      © <span id="year"></span> AIDEX. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <!-- Floating CTA (mobile) -->
+  <a href="#open-account" class="floating-cta" aria-hidden="true">Demo</a>
+
+  <!-- =========================
+       Chat emergente (burbuja + ventana)
+       ========================= -->
+  <!-- Burbuja flotante -->
+  <div id="chat-bubble" role="button" aria-label="Abrir chat de soporte">💬</div>
+
+  <!-- Caja de chat -->
+  <div id="chat-box" class="hidden" role="dialog" aria-label="Asistente AIDEX">
+    <div class="chat-header">
+      <div class="title">
+        <span>🤖</span>
+        <span>Asistente AIDEX</span>
+      </div>
+      <button id="close-chat" aria-label="Cerrar chat">✕</button>
+    </div>
+
+    <div id="chat-body">
+      <!-- Mensaje inicial -->
+      <div class="bot-message">👋 ¡Hola! Soy tu asistente personal de AIDEX, especializado en ayudar a nuevos traders.
+
+🎯 Estoy aquí para:
+• Explicarte conceptos desde cero
+• Guiarte paso a paso
+• Recomendarte recursos
+• Responder tus dudas
+
+💡 Puedes preguntarme:
+"¿Qué es trading?" / "¿Cómo empiezo?" / "¿Cuánto dinero necesito?" / "¿Qué es Forex?"
+
+¿En qué puedo ayudarte hoy?</div>
+    </div>
+
+    <div class="chat-input" role="group" aria-label="Entrada de chat">
+      <input type="text" id="user-input" placeholder="Escribe tu pregunta..." aria-label="Escribe tu pregunta" />
+      <button id="send-btn" aria-label="Enviar">Enviar</button>
+    </div>
+  </div>
+
+  <!-- =========================
+       Scripts (menu, chat, respuestas)
+       ========================= -->
+  <script>
+    /* ====== Variables DOM ====== */
+    const yearEl = document.getElementById('year');
+    const btn = document.getElementById('btnMenu');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    // Footer year
+    yearEl.textContent = new Date().getFullYear();
+
+    // Mobile menu toggle
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const opened = mobileMenu.style.display === 'block';
+        mobileMenu.style.display = opened ? 'none' : 'block';
+        btn.setAttribute('aria-expanded', String(!opened));
+        mobileMenu.setAttribute('aria-hidden', String(opened));
+      });
+    }
+
+    // Simple reveal on scroll for .fade-up
+    function revealOnScroll(){
+      const items = document.querySelectorAll('.fade-up');
+      const windowH = window.innerHeight;
+      items.forEach(i => {
+        const rect = i.getBoundingClientRect();
+        if (rect.top < windowH - 60) i.style.animationPlayState = 'running';
+      });
+    }
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+
+    /* ====== CHAT LÓGICA ====== */
+    const chatBubble = document.getElementById('chat-bubble');
+    const chatBox = document.getElementById('chat-box');
+    const closeChat = document.getElementById('close-chat');
+    const sendBtn = document.getElementById('send-btn');
+    const userInput = document.getElementById('user-input');
+    const chatBody = document.getElementById('chat-body');
+
+    // Abrir chat al hacer clic en la burbuja
+    chatBubble.addEventListener('click', () => {
+      chatBox.classList.remove('hidden');
+      chatBubble.style.display = 'none';
+      userInput.focus();
+    });
+
+    // Cerrar chat
+    closeChat.addEventListener('click', () => {
+      chatBox.classList.add('hidden');
+      chatBubble.style.display = 'flex';
+    });
+
+    // Enviar mensaje con botón
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Enviar mensaje con Enter
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Función para enviar mensaje
+    function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      // Agregar mensaje del usuario
+      addMessage(text, 'user');
+      userInput.value = '';
+
+      // Mostrar indicador de escritura
+      showTyping();
+
+      // Simular respuesta del bot después de 1 segundo
+      setTimeout(() => {
+        hideTyping();
+        const response = getBotResponse(text);
+        addMessage(response, 'bot');
+      }, 1000);
+    }
+
+    // Agregar mensaje al chat
+    function addMessage(text, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = type === 'user' ? 'user-message' : 'bot-message';
+      messageDiv.textContent = text;
+      chatBody.appendChild(messageDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Mostrar indicador de escritura
+    function showTyping() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing';
+      typingDiv.id = 'typing-indicator';
+      typingDiv.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+      chatBody.appendChild(typingDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Ocultar indicador de escritura
+    function hideTyping() {
+      const typing = document.getElementById('typing-indicator');
+      if (typing) typing.remove();
+    }
+
+    // Sistema de respuestas del bot
+    function getBotResponse(userMessage) {
+      const msg = userMessage.toLowerCase();
+
+      // Saludos
+      if (msg.includes('hola') || msg.includes('buenos') || msg.includes('hey')) {
+        return '¡Hola! 👋 ¿En qué puedo ayudarte hoy? Puedo explicarte sobre trading, cuentas, plataformas o lo que necesites.';
+      }
+
+      // Trading básico
+      if (msg.includes('trading') || msg.includes('qué es')) {
+        return 'El trading es la compra y venta de activos financieros (divisas, acciones, criptos) para obtener ganancias. En AIDEX te ayudamos a aprender desde cero con:\n\n• Cuenta demo gratuita\n• Recursos educativos\n• Soporte personalizado\n\n¿Quieres saber cómo empezar?';
+      }
+
+      // Empezar
+      if (msg.includes('empez') || msg.includes('inici') || msg.includes('cómo')) {
+        return '¡Perfecto! Para empezar en AIDEX:\n\n1️⃣ Abre una cuenta demo (sin riesgo)\n2️⃣ Revisa nuestra guía para principiantes\n3️⃣ Practica con $10,000 virtuales\n4️⃣ Aprende con webinars gratuitos\n\n¿Quieres que te explique algún paso en detalle?';
+      }
+
+      // Dinero necesario
+      if (msg.includes('dinero') || msg.includes('capital') || msg.includes('cuánto')) {
+        return 'Tenemos cuentas desde $5 USD:\n\n💰 Micro: desde $5\n💰 Estándar: desde $100\n💰 Profesional: desde $1000\n\nPero ¡IMPORTANTE! Te recomiendo empezar con la cuenta DEMO (gratis) para practicar sin riesgo. ¿Te interesa abrirla?';
+      }
+
+      // Forex
+      if (msg.includes('forex') || msg.includes('divisas')) {
+        return 'Forex es el mercado de divisas, donde se intercambian monedas (EUR/USD, GBP/JPY, etc.).\n\n✅ Mercado más líquido del mundo\n✅ Opera 24/5\n✅ Puedes empezar con poco capital\n\nEn AIDEX tienes +50 pares de divisas. ¿Quieres ver nuestras plataformas?';
+      }
+
+      // Plataformas
+      if (msg.includes('plataforma') || msg.includes('mt4') || msg.includes('mt5')) {
+        return 'Ofrecemos varias plataformas:\n\n📊 MetaTrader 4 (clásica y confiable)\n📊 MetaTrader 5 (más herramientas)\n🌐 WebTrader (sin descargas)\n📱 App móvil (iOS y Android)\n\n¿Cuál te gustaría probar?';
+      }
+
+      // Soporte/ayuda
+      if (msg.includes('ayuda') || msg.includes('soporte') || msg.includes('contacto')) {
+        return 'Nuestro equipo está disponible 24/5 para ayudarte:\n\n📧 Email: soporte@aidex.com\n💬 Chat en vivo\n📞 Línea directa\n\n¿Tienes alguna pregunta específica que pueda responder ahora?';
+      }
+
+      // Educación
+      if (msg.includes('aprend') || msg.includes('curso') || msg.includes('educa')) {
+        return '¡Excelente! Tenemos recursos gratuitos:\n\n📚 Guía para principiantes\n🎥 Webinars en vivo\n📊 Análisis de mercado diario\n📅 Calendario económico\n\n¿Por dónde te gustaría empezar?';
+      }
+
+      // Riesgos
+      if (msg.includes('riesgo') || msg.includes('peligro') || msg.includes('segur')) {
+        return '⚠ Muy buena pregunta. El trading tiene riesgos:\n\n• Puedes perder tu capital\n• Requiere educación y práctica\n• No es dinero rápido o fácil\n\nPor eso recomendamos:\n✅ Empezar con cuenta demo\n✅ Educarte primero\n✅ Nunca invertir lo que no puedes perder\n\n¿Quieres tips de gestión de riesgo?';
+      }
+
+      // Gracias/despedida
+      if (msg.includes('gracias') || msg.includes('bye') || msg.includes('adiós')) {
+        return '¡De nada! 😊 Estoy aquí siempre que me necesites. ¡Mucho éxito en tu camino como trader! 🚀';
+      }
+
+      // Respuesta por defecto
+      return 'Interesante pregunta. Te puedo ayudar con:\n\n• Conceptos básicos de trading\n• Tipos de cuentas\n• Plataformas disponibles\n• Recursos educativos\n• Pasos para empezar\n\n¿Sobre qué te gustaría saber más?';
+    }
+  </script>
+</body>
+</html>
