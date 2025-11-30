@@ -491,39 +491,35 @@
   <div id="chat-bubble" role="button" aria-label="Abrir chat de soporte">💬</div>
 
   <!-- Caja de chat -->
-  <div id="chat-box" class="hidden" role="dialog" aria-label="Asistente AIDEX">
+  <div id="chat-box" class="hidden" role="dialog" aria-label="Asistente IA">
     <div class="chat-header">
       <div class="title">
         <span>🤖</span>
-        <span>Asistente AIDEX</span>
+        <span>Asistente IA</span>
       </div>
       <button id="close-chat" aria-label="Cerrar chat">✕</button>
     </div>
 
     <div id="chat-body">
       <!-- Mensaje inicial -->
-      <div class="bot-message">👋 ¡Hola! Soy tu asistente personal de AIDEX, especializado en ayudar a nuevos traders.
+      <div class="bot-message">👋 ¡Hola! Soy tu asistente de IA. Puedo ayudarte con lo que necesites:
 
-🎯 Estoy aquí para:
-- Explicarte conceptos desde cero
-- Guiarte paso a paso
-- Recomendarte recursos
-- Responder tus dudas
-
-💡 Puedes preguntarme:
-"¿Qué es trading?" / "¿Cómo empiezo?" / "¿Cuánto dinero necesito?" / "¿Qué es Forex?"
+💡 Preguntas sobre AIDEX y trading
+🧠 Resolver dudas generales
+📚 Explicar conceptos
+✍️ Ayudarte con cualquier tema
 
 ¿En qué puedo ayudarte hoy?</div>
     </div>
 
     <div class="chat-input" role="group" aria-label="Entrada de chat">
-      <input type="text" id="user-input" placeholder="Escribe tu pregunta..." aria-label="Escribe tu pregunta" />
+      <input type="text" id="user-input" placeholder="Escribe cualquier pregunta..." aria-label="Escribe tu pregunta" />
       <button id="send-btn" aria-label="Enviar">Enviar</button>
     </div>
   </div>
 
   <!-- =========================
-       Scripts (menu, chat, respuestas con IA)
+       Scripts (menu, chat, IA completa)
        ========================= -->
   <script>
     /* ====== Variables DOM ====== */
@@ -564,6 +560,9 @@
     const userInput = document.getElementById('user-input');
     const chatBody = document.getElementById('chat-body');
 
+    // Historial de conversación para mantener contexto
+    let conversationHistory = [];
+
     // Abrir chat al hacer clic en la burbuja
     chatBubble.addEventListener('click', () => {
       chatBox.classList.remove('hidden');
@@ -594,6 +593,9 @@
       addMessage(text, 'user');
       userInput.value = '';
 
+      // Agregar al historial
+      conversationHistory.push({ role: 'user', content: text });
+
       // Mostrar indicador de escritura
       showTyping();
 
@@ -602,6 +604,9 @@
         const response = await getBotResponse(text);
         hideTyping();
         addMessage(response, 'bot');
+        
+        // Agregar respuesta al historial
+        conversationHistory.push({ role: 'assistant', content: response });
       } catch (error) {
         hideTyping();
         addMessage('Lo siento, hubo un error. Por favor intenta nuevamente.', 'bot');
@@ -633,9 +638,14 @@
       if (typing) typing.remove();
     }
 
-    // Sistema de respuestas del bot con IA (Claude API)
+    // Sistema de IA COMPLETO (responde CUALQUIER cosa como ChatGPT)
     async function getBotResponse(userMessage) {
       try {
+        // Preparar mensajes con historial completo
+        const messages = conversationHistory.length > 0 
+          ? conversationHistory 
+          : [{ role: 'user', content: userMessage }];
+
         const response = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
           headers: {
@@ -643,25 +653,9 @@
           },
           body: JSON.stringify({
             model: "claude-sonnet-4-20250514",
-            max_tokens: 1000,
-            messages: [
-              { 
-                role: "user", 
-                content: `Eres un asistente experto de AIDEX, una plataforma de trading profesional. Tu rol es ayudar a nuevos traders de manera amigable, clara y educativa.
-
-Información sobre AIDEX:
-- Ofrecemos trading de Forex, CFDs y criptomonedas
-- Tipos de cuenta: Micro ($5), Estándar ($100), Profesional ($1000)
-- Plataformas: MetaTrader 4, MetaTrader 5, WebTrader y App móvil
-- Recursos educativos gratuitos: guías, webinars, análisis de mercado
-- Soporte 24/5 disponible
-- Cuenta demo gratuita para practicar sin riesgo
-
-Responde la siguiente pregunta del usuario de forma conversacional, útil y profesional. Si es relevante, menciona los servicios de AIDEX. Mantén las respuestas concisas (máximo 3-4 párrafos):
-
-"${userMessage}"` 
-              }
-            ],
+            max_tokens: 1500,
+            messages: messages,
+            system: "Eres un asistente de IA útil, amigable y conversacional. Puedes responder CUALQUIER pregunta sobre CUALQUIER tema: trading, matemáticas, ciencia, programación, consejos, historia, cultura, entretenimiento, etc. Responde de manera clara, concisa y profesional. Si la pregunta es sobre trading o finanzas, menciona que AIDEX ofrece servicios de trading cuando sea relevante, pero NO limites tus respuestas solo a ese tema. Eres un asistente general de conocimiento."
           })
         });
 
