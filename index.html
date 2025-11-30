@@ -283,7 +283,6 @@
   </style>
 </head>
 <body>
-
   <!-- =========== HEADER / NAV =========== -->
   <header>
     <div class="container nav" role="banner">
@@ -485,7 +484,6 @@
 
   <!-- Floating CTA (mobile) -->
   <a href="#open-account" class="floating-cta" aria-hidden="true">Demo</a>
-
   <!-- =========================
        Chat emergente (burbuja + ventana)
        ========================= -->
@@ -507,10 +505,10 @@
       <div class="bot-message">👋 ¡Hola! Soy tu asistente personal de AIDEX, especializado en ayudar a nuevos traders.
 
 🎯 Estoy aquí para:
-• Explicarte conceptos desde cero
-• Guiarte paso a paso
-• Recomendarte recursos
-• Responder tus dudas
+- Explicarte conceptos desde cero
+- Guiarte paso a paso
+- Recomendarte recursos
+- Responder tus dudas
 
 💡 Puedes preguntarme:
 "¿Qué es trading?" / "¿Cómo empiezo?" / "¿Cuánto dinero necesito?" / "¿Qué es Forex?"
@@ -525,7 +523,7 @@
   </div>
 
   <!-- =========================
-       Scripts (menu, chat, respuestas)
+       Scripts (menu, chat, respuestas con IA)
        ========================= -->
   <script>
     /* ====== Variables DOM ====== */
@@ -588,7 +586,7 @@
     });
 
     // Función para enviar mensaje
-    function sendMessage() {
+    async function sendMessage() {
       const text = userInput.value.trim();
       if (!text) return;
 
@@ -599,12 +597,15 @@
       // Mostrar indicador de escritura
       showTyping();
 
-      // Simular respuesta del bot después de 1 segundo
-      setTimeout(() => {
+      // Obtener respuesta de la IA
+      try {
+        const response = await getBotResponse(text);
         hideTyping();
-        const response = getBotResponse(text);
         addMessage(response, 'bot');
-      }, 1000);
+      } catch (error) {
+        hideTyping();
+        addMessage('Lo siento, hubo un error. Por favor intenta nuevamente.', 'bot');
+      }
     }
 
     // Agregar mensaje al chat
@@ -632,62 +633,50 @@
       if (typing) typing.remove();
     }
 
-    // Sistema de respuestas del bot
-    function getBotResponse(userMessage) {
-      const msg = userMessage.toLowerCase();
+    // Sistema de respuestas del bot con IA (Claude API)
+    async function getBotResponse(userMessage) {
+      try {
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 1000,
+            messages: [
+              { 
+                role: "user", 
+                content: `Eres un asistente experto de AIDEX, una plataforma de trading profesional. Tu rol es ayudar a nuevos traders de manera amigable, clara y educativa.
 
-      // Saludos
-      if (msg.includes('hola') || msg.includes('buenos') || msg.includes('hey')) {
-        return '¡Hola! 👋 ¿En qué puedo ayudarte hoy? Puedo explicarte sobre trading, cuentas, plataformas o lo que necesites.';
+Información sobre AIDEX:
+- Ofrecemos trading de Forex, CFDs y criptomonedas
+- Tipos de cuenta: Micro ($5), Estándar ($100), Profesional ($1000)
+- Plataformas: MetaTrader 4, MetaTrader 5, WebTrader y App móvil
+- Recursos educativos gratuitos: guías, webinars, análisis de mercado
+- Soporte 24/5 disponible
+- Cuenta demo gratuita para practicar sin riesgo
+
+Responde la siguiente pregunta del usuario de forma conversacional, útil y profesional. Si es relevante, menciona los servicios de AIDEX. Mantén las respuestas concisas (máximo 3-4 párrafos):
+
+"${userMessage}"` 
+              }
+            ],
+          })
+        });
+
+        const data = await response.json();
+        
+        // Extraer el texto de la respuesta
+        if (data.content && data.content[0] && data.content[0].text) {
+          return data.content[0].text;
+        } else {
+          return 'Lo siento, hubo un error al procesar tu mensaje. ¿Podrías intentarlo de nuevo?';
+        }
+      } catch (error) {
+        console.error('Error al contactar la IA:', error);
+        return 'Disculpa, estoy teniendo problemas de conexión. Por favor, intenta nuevamente en un momento.';
       }
-
-      // Trading básico
-      if (msg.includes('trading') || msg.includes('qué es')) {
-        return 'El trading es la compra y venta de activos financieros (divisas, acciones, criptos) para obtener ganancias. En AIDEX te ayudamos a aprender desde cero con:\n\n• Cuenta demo gratuita\n• Recursos educativos\n• Soporte personalizado\n\n¿Quieres saber cómo empezar?';
-      }
-
-      // Empezar
-      if (msg.includes('empez') || msg.includes('inici') || msg.includes('cómo')) {
-        return '¡Perfecto! Para empezar en AIDEX:\n\n1️⃣ Abre una cuenta demo (sin riesgo)\n2️⃣ Revisa nuestra guía para principiantes\n3️⃣ Practica con $10,000 virtuales\n4️⃣ Aprende con webinars gratuitos\n\n¿Quieres que te explique algún paso en detalle?';
-      }
-
-      // Dinero necesario
-      if (msg.includes('dinero') || msg.includes('capital') || msg.includes('cuánto')) {
-        return 'Tenemos cuentas desde $5 USD:\n\n💰 Micro: desde $5\n💰 Estándar: desde $100\n💰 Profesional: desde $1000\n\nPero ¡IMPORTANTE! Te recomiendo empezar con la cuenta DEMO (gratis) para practicar sin riesgo. ¿Te interesa abrirla?';
-      }
-
-      // Forex
-      if (msg.includes('forex') || msg.includes('divisas')) {
-        return 'Forex es el mercado de divisas, donde se intercambian monedas (EUR/USD, GBP/JPY, etc.).\n\n✅ Mercado más líquido del mundo\n✅ Opera 24/5\n✅ Puedes empezar con poco capital\n\nEn AIDEX tienes +50 pares de divisas. ¿Quieres ver nuestras plataformas?';
-      }
-
-      // Plataformas
-      if (msg.includes('plataforma') || msg.includes('mt4') || msg.includes('mt5')) {
-        return 'Ofrecemos varias plataformas:\n\n📊 MetaTrader 4 (clásica y confiable)\n📊 MetaTrader 5 (más herramientas)\n🌐 WebTrader (sin descargas)\n📱 App móvil (iOS y Android)\n\n¿Cuál te gustaría probar?';
-      }
-
-      // Soporte/ayuda
-      if (msg.includes('ayuda') || msg.includes('soporte') || msg.includes('contacto')) {
-        return 'Nuestro equipo está disponible 24/5 para ayudarte:\n\n📧 Email: soporte@aidex.com\n💬 Chat en vivo\n📞 Línea directa\n\n¿Tienes alguna pregunta específica que pueda responder ahora?';
-      }
-
-      // Educación
-      if (msg.includes('aprend') || msg.includes('curso') || msg.includes('educa')) {
-        return '¡Excelente! Tenemos recursos gratuitos:\n\n📚 Guía para principiantes\n🎥 Webinars en vivo\n📊 Análisis de mercado diario\n📅 Calendario económico\n\n¿Por dónde te gustaría empezar?';
-      }
-
-      // Riesgos
-      if (msg.includes('riesgo') || msg.includes('peligro') || msg.includes('segur')) {
-        return '⚠ Muy buena pregunta. El trading tiene riesgos:\n\n• Puedes perder tu capital\n• Requiere educación y práctica\n• No es dinero rápido o fácil\n\nPor eso recomendamos:\n✅ Empezar con cuenta demo\n✅ Educarte primero\n✅ Nunca invertir lo que no puedes perder\n\n¿Quieres tips de gestión de riesgo?';
-      }
-
-      // Gracias/despedida
-      if (msg.includes('gracias') || msg.includes('bye') || msg.includes('adiós')) {
-        return '¡De nada! 😊 Estoy aquí siempre que me necesites. ¡Mucho éxito en tu camino como trader! 🚀';
-      }
-
-      // Respuesta por defecto
-      return 'Interesante pregunta. Te puedo ayudar con:\n\n• Conceptos básicos de trading\n• Tipos de cuentas\n• Plataformas disponibles\n• Recursos educativos\n• Pasos para empezar\n\n¿Sobre qué te gustaría saber más?';
     }
   </script>
 </body>
