@@ -609,7 +609,8 @@
         conversationHistory.push({ role: 'assistant', content: response });
       } catch (error) {
         hideTyping();
-        addMessage('Lo siento, hubo un error. Por favor intenta nuevamente.', 'bot');
+        addMessage('Lo siento, hubo un error al conectar con la IA. Por favor intenta nuevamente.', 'bot');
+        console.error('Error:', error);
       }
     }
 
@@ -650,14 +651,22 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "anthropic-version": "2023-06-01",
+            "x-api-key": "tu-api-key-aqui" // DEBES REEMPLAZAR ESTO
           },
           body: JSON.stringify({
             model: "claude-sonnet-4-20250514",
             max_tokens: 1500,
             messages: messages,
-            system: "Eres un asistente de IA útil, amigable y conversacional. Puedes responder CUALQUIER pregunta sobre CUALQUIER tema: trading, matemáticas, ciencia, programación, consejos, historia, cultura, entretenimiento, etc. Responde de manera clara, concisa y profesional. Si la pregunta es sobre trading o finanzas, menciona que AIDEX ofrece servicios de trading cuando sea relevante, pero NO limites tus respuestas solo a ese tema. Eres un asistente general de conocimiento."
+            system: "Eres un asistente de IA útil, amigable y conversacional. Puedes responder CUALQUIER pregunta sobre CUALQUIER tema: trading, matemáticas, ciencia, programación, consejos, historia, cultura, entretenimiento, etc. Responde de manera clara, concisa y profesional en español. Si la pregunta es sobre trading o finanzas, menciona que AIDEX ofrece servicios de trading cuando sea relevante, pero NO limites tus respuestas solo a ese tema. Eres un asistente general de conocimiento."
           })
         });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Error de API:', errorData);
+          throw new Error(`Error ${response.status}: ${errorData.error?.message || 'Error desconocido'}`);
+        }
 
         const data = await response.json();
         
@@ -668,8 +677,20 @@
           return 'Lo siento, hubo un error al procesar tu mensaje. ¿Podrías intentarlo de nuevo?';
         }
       } catch (error) {
-        console.error('Error al contactar la IA:', error);
-        return 'Disculpa, estoy teniendo problemas de conexión. Por favor, intenta nuevamente en un momento.';
+        console.error('Error completo:', error);
+        
+        // Mensaje de error más descriptivo
+        if (error.message.includes('401') || error.message.includes('authentication')) {
+          return '🔑 Error: La API key no está configurada correctamente.\n\nPor favor, obtén tu API key en https://console.anthropic.com/ y reemplaza "tu-api-key-aqui" en el código.';
+        } else if (error.message.includes('429')) {
+          return '⏱️ Límite de uso alcanzado. Por favor espera un momento e intenta nuevamente.';
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          return '🌐 Error de conexión. Verifica tu conexión a internet e intenta nuevamente.';
+        } else if (error.message.includes('403')) {
+          return '🚫 Acceso denegado. Verifica que tu API key tenga los permisos necesarios.';
+        }
+        
+        return '❌ Error al conectar con la IA: ' + error.message + '\n\nPor favor intenta nuevamente.';
       }
     }
   </script>
