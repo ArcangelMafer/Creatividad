@@ -123,10 +123,6 @@
     .socials{display:flex; gap:8px}
     .socials a{padding:8px; border-radius:10px; background:var(--glass); color:var(--muted); font-weight:600}
 
-    /* Floating CTA */
-    .floating-cta{display:none !important}
-    @media (max-width:680px){ .floating-cta{display:inline-flex} }
-
     /* Reveal animation simple */
     .fade-up{opacity:0; transform:translateY(8px); animation:fadeUp .7s forwards}
     .fade-up.delay-1{animation-delay:.12s}
@@ -166,8 +162,11 @@
       border-radius: 50%;
       width: 56px;
       height: 56px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; box-shadow: 0 12px 36px rgba(37,99,235,0.12);
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      cursor: pointer; 
+      box-shadow: 0 12px 36px rgba(37,99,235,0.12);
       z-index:120;
       animation: float 2.4s ease-in-out infinite;
       transition: transform 0.3s ease;
@@ -186,7 +185,10 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       box-shadow: 0 18px 50px rgba(2,6,23,0.85);
-      display: flex; flex-direction: column; overflow: hidden; z-index:125;
+      display: flex; 
+      flex-direction: column; 
+      overflow: hidden; 
+      z-index:125;
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
     #chat-box.hidden{
@@ -283,7 +285,7 @@
   </style>
 </head>
 <body>
-  <!-- =========== HEADER / NAV =========== -->
+<!-- =========== HEADER / NAV =========== -->
   <header>
     <div class="container nav" role="banner">
       <div style="display:flex;align-items:center;gap:12px">
@@ -481,7 +483,8 @@
       © <span id="year"></span> AIDEX. Todos los derechos reservados.
     </div>
   </footer>
- <!-- =========================
+
+  <!-- =========================
        Chat emergente (burbuja + ventana)
        ========================= -->
   <!-- Burbuja flotante -->
@@ -519,8 +522,7 @@
       <button id="send-btn" aria-label="Enviar">Enviar</button>
     </div>
   </div>
-
-  <!-- =========================
+<!-- =========================
        Scripts
        ========================= -->
   <script>
@@ -786,15 +788,12 @@
       // ============================================
       
       if (msg.match(/psicología|psicologia|emociones|miedo|codicia|disciplina|mental/i)) {
-        return '🧠 **Psicología del Trading - 80% del éxito**\n\n😨 **Emociones enemigas:**\n\n1️⃣ **MIEDO**\n• Paraliza decisiones\n• Te saca de buenas operaciones\n• Solución: Confía en tu análisis\n\n2️⃣ **CODICIA**\n• No tomar ganancias\n• Arriesgar de más\n• Solución: Sigue tu plan\n\n3️⃣ **VENGANZA**\n• Operar tras una pérdida\n• Decisiones impulsivas\n• Solución: Toma
-          // Solución: Toma un descanso
-\n\n4️⃣ **EUFORIA**\n• Exceso de confianza tras ganar\n• Romper reglas de riesgo\n• Solución: Mantén humildad\n\n✅ **Cómo desarrollar disciplina:**\n\n📋 **Plan de Trading escrito**\n• Cuándo entrar/salir\n• Cuánto arriesgar\n• Qué mercados operar\n\n📊 **Bitácora de operaciones**\n• Registra TODAS tus operaciones\n• Analiza patrones\n• Aprende de errores\n\n🧘 **Rutina pre-trading**\n• Medita 5 minutos\n• Revisa noticias\n• Verifica plan del día\n\n⏸️ **Saber parar**\n• Después de 2 pérdidas seguidas\n• Si estás emocional\n• Cuando no hay setups claros\n\n💡 "El mercado siempre estará ahí mañana". ¿Quieres tips para controlar emociones?';
+        return '🧠 **Psicología del Trading - 80% del éxito**\n\n😨 **Emociones enemigas:**\n\n1️⃣ **MIEDO**\n• Paraliza decisiones\n• Te saca de buenas operaciones\n• Solución: Confía en tu análisis\n\n2️⃣ **CODICIA**\n• No tomar ganancias\n• Arriesgar de más\n• Solución: Sigue tu plan\n\n3️⃣ **VENGANZA**\n• Operar tras una pérdida\n• Decisiones impulsivas\n• Solución: Toma un descanso\n\n4️⃣ **EUFORIA**\n• Exceso de confianza tras ganar\n• Romper reglas de riesgo\n• Solución: Mantén humildad\n\n✅ **Cómo desarrollar disciplina:**\n\n📋 **Plan de Trading escrito**\n• Cuándo entrar/salir\n• Cuánto arriesgar\n• Qué mercados operar\n\n📊 **Bitácora de operaciones**\n• Registra TODAS tus operaciones\n• Analiza patrones\n• Aprende de errores\n\n🧘 **Rutina pre-trading**\n• Medita 5 minutos\n• Revisa noticias\n• Verifica plan del día\n\n⏸️ **Saber parar**\n• Después de 2 pérdidas seguidas\n• Si estás emocional\n• Cuando no hay setups claros\n\n💡 "El mercado siempre estará ahí mañana". ¿Quieres tips para controlar emociones?';
       }
 
       // ============================================
       // APALANCAMIENTO
       // ============================================
-      
       if (msg.match(/apalancamiento|leverage|margen|margin|1:100|1:200/i)) {
         return '⚡ **Apalancamiento - Arma de doble filo**\n\n🔍 **¿Qué es?**\nOperar con más capital del que tienes.\n\n📊 **Ejemplo:**\n• Tienes: $100\n• Apalancamiento 1:100\n• Puedes operar: $10,000\n\n✅ **Ventajas:**\n• Mayores ganancias potenciales\n• Menos capital inicial necesario\n• Más oportunidades\n\n⚠️ **Riesgos:**\n• TAMBIÉN amplifica pérdidas\n• Puedes perder más rápido\n• Margin call si no hay fondos\n\n🎯 **Apalancamiento en AIDEX:**\n• Micro: 1:30\n• Estándar: 1:100\n• Profesional: 1:200\n\n💡 **Recomendación para principiantes:**\n• Usa BAJO apalancamiento (1:10 o 1:20)\n• Prioriza gestión de riesgo\n• Aumenta gradualmente con experiencia\n\n❓ ¿Quieres calcular tu exposición con apalancamiento?';
       }
@@ -947,4 +946,3 @@
   </script>
 </body>
 </html>
-
