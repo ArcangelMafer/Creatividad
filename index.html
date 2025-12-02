@@ -495,31 +495,36 @@
     <div class="chat-header">
       <div class="title">
         <span>🤖</span>
-        <span>Asistente IA</span>
+        <span>Asistente AIDEX</span>
       </div>
       <button id="close-chat" aria-label="Cerrar chat">✕</button>
     </div>
 
     <div id="chat-body">
       <!-- Mensaje inicial -->
-      <div class="bot-message">👋 ¡Hola! Soy tu asistente de IA. Puedo ayudarte con lo que necesites:
+      <div class="bot-message">👋 ¡Hola! Soy tu asistente de AIDEX.
 
-💡 Preguntas sobre AIDEX y trading
-🧠 Resolver dudas generales
-📚 Explicar conceptos
-✍️ Ayudarte con cualquier tema
+🎯 Puedo ayudarte con:
+- Preguntas sobre trading e inversiones
+- Historia y conceptos del mercado
+- Calculadora (sumas, restas, %, conversiones)
+- Información de criptomonedas
+- Estrategias de inversión
 
-¿En qué puedo ayudarte hoy?</div>
+💡 Ejemplos:
+"¿Qué es el trading?" / "Calcula 2500 * 15%" / "Convierte 100 USD a EUR" / "¿Cuándo debo invertir?"
+
+¿En qué puedo ayudarte?</div>
     </div>
 
     <div class="chat-input" role="group" aria-label="Entrada de chat">
-      <input type="text" id="user-input" placeholder="Escribe cualquier pregunta..." aria-label="Escribe tu pregunta" />
+      <input type="text" id="user-input" placeholder="Escribe tu pregunta..." aria-label="Escribe tu pregunta" />
       <button id="send-btn" aria-label="Enviar">Enviar</button>
     </div>
   </div>
 
   <!-- =========================
-       Scripts (menu, chat, IA completa)
+       Scripts
        ========================= -->
   <script>
     /* ====== Variables DOM ====== */
@@ -527,10 +532,8 @@
     const btn = document.getElementById('btnMenu');
     const mobileMenu = document.getElementById('mobileMenu');
 
-    // Footer year
     yearEl.textContent = new Date().getFullYear();
 
-    // Mobile menu toggle
     if (btn) {
       btn.addEventListener('click', () => {
         const opened = mobileMenu.style.display === 'block';
@@ -540,7 +543,6 @@
       });
     }
 
-    // Simple reveal on scroll for .fade-up
     function revealOnScroll(){
       const items = document.querySelectorAll('.fade-up');
       const windowH = window.innerHeight;
@@ -560,66 +562,45 @@
     const userInput = document.getElementById('user-input');
     const chatBody = document.getElementById('chat-body');
 
-    // Historial de conversación para mantener contexto
-    let conversationHistory = [
-      {
-        role: "system",
-        content: "Eres un asistente de IA útil, amigable y conversacional. Puedes responder CUALQUIER pregunta sobre CUALQUIER tema: trading, matemáticas, ciencia, programación, consejos, historia, cultura, entretenimiento, etc. Responde de manera clara, concisa y profesional en español. Si la pregunta es sobre trading o finanzas, menciona que AIDEX ofrece servicios de trading (Forex, CFDs, criptomonedas, cuentas desde $5, plataformas MT4/MT5) cuando sea relevante, pero NO limites tus respuestas solo a ese tema. Eres un asistente general de conocimiento."
-      }
-    ];
+    let conversationHistory = [];
 
-    // Abrir chat al hacer clic en la burbuja
     chatBubble.addEventListener('click', () => {
       chatBox.classList.remove('hidden');
       chatBubble.style.display = 'none';
       userInput.focus();
     });
 
-    // Cerrar chat
     closeChat.addEventListener('click', () => {
       chatBox.classList.add('hidden');
       chatBubble.style.display = 'flex';
     });
 
-    // Enviar mensaje con botón
     sendBtn.addEventListener('click', sendMessage);
-
-    // Enviar mensaje con Enter
     userInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') sendMessage();
     });
 
-    // Función para enviar mensaje
     async function sendMessage() {
       const text = userInput.value.trim();
       if (!text) return;
 
-      // Agregar mensaje del usuario
       addMessage(text, 'user');
       userInput.value = '';
-
-      // Agregar al historial
       conversationHistory.push({ role: 'user', content: text });
-
-      // Mostrar indicador de escritura
       showTyping();
 
-      // Obtener respuesta de la IA
       try {
-        const response = await getBotResponse();
+        const response = await getBotResponse(text);
         hideTyping();
         addMessage(response, 'bot');
-        
-        // Agregar respuesta al historial
         conversationHistory.push({ role: 'assistant', content: response });
       } catch (error) {
         hideTyping();
-        addMessage('Lo siento, hubo un error al conectar con la IA. Por favor intenta nuevamente.', 'bot');
+        addMessage('Error al procesar tu mensaje. Intenta nuevamente.', 'bot');
         console.error('Error:', error);
       }
     }
 
-    // Agregar mensaje al chat
     function addMessage(text, type) {
       const messageDiv = document.createElement('div');
       messageDiv.className = type === 'user' ? 'user-message' : 'bot-message';
@@ -628,7 +609,6 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // Mostrar indicador de escritura
     function showTyping() {
       const typingDiv = document.createElement('div');
       typingDiv.className = 'typing';
@@ -638,64 +618,333 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // Ocultar indicador de escritura
     function hideTyping() {
       const typing = document.getElementById('typing-indicator');
       if (typing) typing.remove();
     }
 
     // ============================================
-    // 🔑 AQUÍ VA TU API KEY DE OPENAI
+    // SISTEMA DE RESPUESTAS COMPLETO
     // ============================================
-    async function getBotResponse() {
+    async function getBotResponse(userMessage) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const msg = userMessage.toLowerCase();
+
+      // ============================================
+      // CALCULADORA
+      // ============================================
+      
+      // Operaciones matemáticas básicas
+      if (msg.match(/calcula|calcular|cuánto es|cuanto es|\+|\-|\*|\/|x|÷/)) {
+        return calcular(msg);
+      }
+
+      // Conversión de monedas
+      if (msg.match(/convierte|convertir|convert|cambio|de .* a|usd|eur|gbp|jpy|cad|aud|chf|mxn|pen|cop|ars|brl/i)) {
+        return convertirMoneda(msg);
+      }
+
+      // ============================================
+      // TRADING - CONCEPTOS BÁSICOS
+      // ============================================
+      
+      if (msg.match(/qué es trading|que es trading|trading es|definición de trading/i)) {
+        return '📊 **¿Qué es el Trading?**\n\nEl trading es la compra y venta de activos financieros (acciones, divisas, criptos, etc.) con el objetivo de obtener ganancias aprovechando las fluctuaciones de precios.\n\n🔑 **Tipos principales:**\n• Day Trading: operaciones en el mismo día\n• Swing Trading: días o semanas\n• Scalping: segundos o minutos\n• Position Trading: meses o años\n\nEn AIDEX ofrecemos todas las herramientas para cualquier estilo. ¿Quieres saber más sobre alguno?';
+      }
+
+      // Historia del trading
+      if (msg.match(/historia del trading|cómo empezó|como empezo|origen del trading|nació el trading|nacio el trading/i)) {
+        return '📜 **Historia del Trading**\n\n🏛️ **Orígenes (Siglo XVII)**\n• 1602: Primera bolsa de valores en Ámsterdam\n• Se comerciaban acciones de la Compañía de las Indias\n\n📈 **Evolución:**\n• 1792: Fundación de NYSE (New York Stock Exchange)\n• 1971: Nace NASDAQ (primera bolsa electrónica)\n• 1990s: Internet democratiza el trading\n• 2000s: Trading algorítmico\n• 2010s: Trading móvil y criptomonedas\n• 2020s: Trading social y IA\n\n🚀 Hoy cualquiera puede ser trader desde su celular. ¡Como en AIDEX!';
+      }
+
+      // Cuándo invertir
+      if (msg.match(/cuándo invertir|cuando invertir|mejor momento|cuándo comprar|cuando comprar|hora de invertir/i)) {
+        return '⏰ **¿Cuándo invertir?**\n\n✅ **El mejor momento es:**\n• Cuando tengas conocimiento básico\n• Después de practicar en demo\n• Con capital que puedas perder\n• Con un plan de trading claro\n\n📅 **Momentos del mercado:**\n• Apertura de sesiones (mayor volatilidad)\n• Publicación de datos económicos\n• Anuncios de bancos centrales\n\n⚠️ **NUNCA inviertas:**\n• Con dinero prestado\n• Sin educarte primero\n• Por presión o FOMO\n• Todo tu capital en una operación\n\n💡 Tip: Empieza con cuenta demo en AIDEX. ¿Te ayudo a abrirla?';
+      }
+
+      // Mejores opciones de inversión
+      if (msg.match(/mejores opciones|dónde invertir|donde invertir|mejores inversiones|qué invertir|que invertir|recomendaciones de inversión/i)) {
+        return '💎 **Mejores opciones de inversión 2024-2025**\n\n📊 **Por tipo de activo:**\n\n1️⃣ **Forex** (divisas)\n• EUR/USD, GBP/USD\n• Alta liquidez, opera 24/5\n\n2️⃣ **Acciones**\n• Tech: Apple, Microsoft, NVIDIA\n• IA: empresas de inteligencia artificial\n\n3️⃣ **Criptomonedas**\n• Bitcoin, Ethereum\n• Alta volatilidad = oportunidades\n\n4️⃣ **Índices**\n• S&P 500, NASDAQ\n• Menor riesgo (diversificación)\n\n5️⃣ **Materias primas**\n• Oro (refugio seguro)\n• Petróleo (energía)\n\n⚠️ La mejor opción depende de TU perfil de riesgo. ¿Quieres un test de perfil?';
+      }
+
+      // Tiempo de evaluación
+      if (msg.match(/cuánto tiempo|cuanto tiempo|tiempo de|evaluar|evaluación|análisis de|duración/i) && msg.match(/compra|venta|acción|operación/i)) {
+        return '⏱️ **Tiempo de evaluación de operaciones**\n\n📊 **Depende del estilo:**\n\n⚡ **Scalping**: 1-5 minutos\n• Análisis técnico rápido\n• Decisiones instantáneas\n\n📅 **Day Trading**: 15min - 4 horas\n• Análisis intradía\n• Cierra antes de fin de día\n\n📈 **Swing Trading**: 2-7 días\n• Análisis técnico + fundamental\n• Espera movimientos más grandes\n\n📊 **Position Trading**: Semanas-meses\n• Análisis fundamental profundo\n• Tendencias de largo plazo\n\n💡 **Regla de oro**: NUNCA decidas por impulso. Usa siempre análisis previo. ¿Quieres aprender análisis técnico?';
+      }
+
+      // ============================================
+      // CRIPTOMONEDAS
+      // ============================================
+      
+      if (msg.match(/qué son las criptos|que son las criptos|criptomonedas son|bitcoin es|crypto/i)) {
+        return '💎 **¿Qué son las Criptomonedas?**\n\nSon monedas digitales descentralizadas que usan criptografía para seguridad.\n\n🔑 **Características:**\n• No controladas por gobiernos\n• Blockchain (registro público)\n• Transacciones peer-to-peer\n• Limitadas en cantidad (escasez)\n\n💰 **Principales criptos:**\n• Bitcoin (BTC): "Oro digital"\n• Ethereum (ETH): Contratos inteligentes\n• Ripple (XRP): Pagos bancarios\n• Litecoin (LTC): "Plata digital"\n\n📊 En AIDEX puedes tradear las principales criptos con apalancamiento. ¿Quieres saber cómo?';
+      }
+
+      // Quién creó Bitcoin
+      if (msg.match(/quién creó bitcoin|quien creo bitcoin|satoshi nakamoto|creador de bitcoin|dueño de bitcoin/i)) {
+        return '👤 **Creador de Bitcoin: Satoshi Nakamoto**\n\n🔍 **El misterio:**\n• Nombre: Satoshi Nakamoto (seudónimo)\n• Identidad: DESCONOCIDA hasta hoy\n• Publicó el whitepaper en 2008\n• Minó el primer bloque en 2009\n\n💰 **Su fortuna:**\n• Posee ~1 millón de BTC\n• Valor: +$40,000 millones USD\n• NUNCA ha movido sus bitcoins\n\n❓ **Teorías sobre su identidad:**\n• Un genio programador\n• Un grupo de desarrolladores\n• Agencia gubernamental (menos probable)\n\n🎯 Su legado: revolucionó las finanzas globales. ¿Curioso sobre blockchain?';
+      }
+
+      // Dueño de Ethereum
+      if (msg.match(/quién creó ethereum|quien creo ethereum|vitalik|buterin|dueño de ethereum|creador de ethereum/i)) {
+        return '👨‍💻 **Creador de Ethereum: Vitalik Buterin**\n\n🇷🇺🇨🇦 **Biografía:**\n• Nombre: Vitalik Buterin\n• Nacimiento: 1994 (Rusia)\n• Nacionalidad: Canadiense\n• Creó Ethereum a los 19 años (2013)\n\n🚀 **Logros:**\n• Whitepaper en 2013\n• Lanzamiento en 2015\n• Contratos inteligentes revolucionarios\n• Ethereum 2.0 (Proof of Stake)\n\n💡 **Visión:**\n"Un ordenador mundial descentralizado"\n\n💰 Su fortuna: Miles de millones en ETH. Ethereum es la base de DeFi, NFTs y dApps. ¿Quieres tradear ETH en AIDEX?';
+      }
+
+      // Otras criptos y sus creadores
+      if (msg.match(/quién creó|quien creo|dueño de|creador de/i) && msg.match(/ripple|xrp|litecoin|ltc|cardano|ada|solana|sol|bnb|binance/i)) {
+        let crypto = '';
+        let info = '';
+        
+        if (msg.match(/ripple|xrp/i)) {
+          crypto = 'Ripple (XRP)';
+          info = '👥 **Creadores: Chris Larsen y Jed McCaleb**\n\n🏦 Fundación: 2012\n🎯 Objetivo: Pagos bancarios internacionales instantáneos\n💼 Empresa: Ripple Labs\n⚡ Velocidad: 3-5 segundos por transacción\n\n🔥 Dato: Demandado por SEC en 2020, ganó parcialmente en 2023.';
+        } else if (msg.match(/litecoin|ltc/i)) {
+          crypto = 'Litecoin (LTC)';
+          info = '👨‍💼 **Creador: Charlie Lee**\n\n📅 Fundación: 2011\n💡 Concepto: "Plata digital" (Bitcoin es oro)\n⚡ Velocidad: 4x más rápido que Bitcoin\n🔄 Bloques cada 2.5 minutos\n\n💎 Muy usado para transacciones diarias.';
+        } else if (msg.match(/cardano|ada/i)) {
+          crypto = 'Cardano (ADA)';
+          info = '🎓 **Creador: Charles Hoskinson**\n\n📅 Fundación: 2017\n🧪 Enfoque: Investigación académica\n🔬 Primera blockchain con peer-review\n🌱 Proof of Stake desde el inicio\n\n🎯 Visión: Blockchain sostenible y escalable.';
+        } else if (msg.match(/solana|sol/i)) {
+          crypto = 'Solana (SOL)';
+          info = '⚡ **Creador: Anatoly Yakovenko**\n\n📅 Fundación: 2020\n🚀 La blockchain MÁS RÁPIDA\n⏱️ 65,000 transacciones/segundo\n💰 Tarifas: menos de $0.01\n\n🎮 Popular en NFTs y Gaming.';
+        } else if (msg.match(/bnb|binance/i)) {
+          crypto = 'Binance Coin (BNB)';
+          info = '🏢 **Creador: Changpeng Zhao (CZ)**\n\n📅 Fundación: 2017\n🏦 Exchange: Binance (el más grande)\n🔥 Quema de tokens trimestral\n💳 Usos: Trading fees, pagos, DeFi\n\n💎 De $0.10 a $600+ en su pico.';
+        }
+        
+        return `💰 **${crypto}**\n\n${info}\n\n📊 Puedes tradear esta y otras criptos en AIDEX con apalancamiento. ¿Te interesa?`;
+      }
+
+      // ============================================
+      // FOREX Y DIVISAS
+      // ============================================
+      
+      if (msg.match(/forex|divisas|pares de|EUR\/USD|GBP\/USD|par mayor/i)) {
+        return '💱 **Forex - Mercado de Divisas**\n\n🌍 **El mercado más grande del mundo**\n• Volumen diario: $6.6 trillones\n• Opera 24h, 5 días/semana\n• Mayor liquidez global\n\n📊 **Pares Principales (Majors):**\n• EUR/USD (Euro/Dólar) - El más operado\n• GBP/USD (Libra/Dólar) - "Cable"\n• USD/JPY (Dólar/Yen) - "Ninja"\n• USD/CHF (Dólar/Franco)\n\n📈 **Pares Menores:**\n• EUR/GBP, EUR/JPY, GBP/JPY\n\n🌶️ **Exóticos:**\n• USD/MXN, USD/TRY, USD/ZAR\n\n💡 En AIDEX: +50 pares con spreads desde 0.1 pips. ¿Quieres estrategias de Forex?';
+      }
+
+      // ============================================
+      // ANÁLISIS TÉCNICO
+      // ============================================
+      
+      if (msg.match(/análisis técnico|analisis tecnico|indicadores|RSI|MACD|medias móviles|fibonacci/i)) {
+        return '📊 **Análisis Técnico**\n\nEstudio de gráficos y patrones para predecir movimientos.\n\n🔧 **Indicadores principales:**\n\n1️⃣ **Medias Móviles (MA)**\n• Identifica tendencias\n• MA 50, MA 200 (más usadas)\n\n2️⃣ **RSI (Relative Strength Index)**\n• Mide sobrecompra/sobreventa\n• >70 = sobrecompra, <30 = sobreventa\n\n3️⃣ **MACD**\n• Momentum y tendencia\n• Cruces = señales de entrada/salida\n\n4️⃣ **Fibonacci**\n• Niveles de retroceso\n• 38.2%, 50%, 61.8%\n\n5️⃣ **Soportes y Resistencias**\n• Zonas clave de precio\n\n📚 ¿Quieres aprender a usar estos indicadores en MT4/MT5?';
+      }
+
+      // ============================================
+      // GESTIÓN DE RIESGO
+      // ============================================
+      
+      if (msg.match(/gestión de riesgo|gestion de riesgo|stop loss|take profit|riesgo recompensa|money management/i)) {
+        return '🛡️ **Gestión de Riesgo - LO MÁS IMPORTANTE**\n\n⚠️ **Reglas de oro:**\n\n1️⃣ **Regla del 2%**\n• NUNCA arriesgues más del 2% de tu capital por operación\n• Ejemplo: $1000 → máximo $20 de riesgo\n\n2️⃣ **Stop Loss obligatorio**\n• SIEMPRE úsalo\n• Define ANTES de entrar\n\n3️⃣ **Ratio Riesgo/Beneficio**\n• Mínimo 1:2 (arriesgas $1 para ganar $2)\n• Ideal 1:3 o más\n\n4️⃣ **Diversificación**\n• No pongas todo en un activo\n• Máximo 3-5 operaciones simultáneas\n\n5️⃣ **Tamaño de posición**\n• Usa calculadoras de lote\n• Respeta tu plan de trading\n\n💡 ¿Quiero calcularte el tamaño de lote ideal?';
+      }
+
+      // ============================================
+      // PLATAFORMAS Y CUENTAS
+      // ============================================
+      
+      if (msg.match(/metatrader|mt4|mt5|plataforma|webtrader|app/i)) {
+        return '📊 **Plataformas de Trading en AIDEX**\n\n🖥️ **MetaTrader 4 (MT4)**\n• La más popular del mundo\n• Expert Advisors (robots)\n• +2000 indicadores\n• Windows, Mac, Linux\n\n🚀 **MetaTrader 5 (MT5)**\n• Versión mejorada\n• Más mercados (acciones, futuros)\n• 21 timeframes (vs 9 en MT4)\n• Análisis económico integrado\n\n🌐 **WebTrader**\n• Sin descargas\n• Desde cualquier navegador\n• Acceso instantáneo\n\n📱 **App Móvil**\n• iOS y Android\n• Notificaciones en tiempo real\n• Opera desde cualquier lugar\n\n💡 ¿Cuál te gustaría probar primero?';
+      }
+
+      if (msg.match(/cuenta|abrir|demo|micro|estándar|estandar|profesional|tipo de cuenta/i)) {
+        return '💼 **Cuentas en AIDEX**\n\n🎮 **CUENTA DEMO** (¡GRATIS!)\n• $10,000 virtuales\n• Sin riesgo\n• Practica ilimitada\n• Todas las funciones reales\n\n💰 **MICRO** - Desde $5\n• Apalancamiento: 1:30\n• Lotes: 0.01 - 0.1\n• Ideal: Principiantes\n• Spreads: estándar\n\n💼 **ESTÁNDAR** - Desde $100\n• Apalancamiento: 1:100\n• Lotes: 0.01 - 1.0\n• Ideal: Intermedios\n• Spreads: reducidos\n\n👔 **PROFESIONAL** - Desde $1,000\n• Apalancamiento: 1:200\n• Lotes: 0.01 - 10.0\n• Ideal: Expertos\n• Spreads: premium\n• Soporte VIP\n\n✅ Recomendación: Empieza con DEMO. ¿Te ayudo a abrirla?';
+      }
+
+      // ============================================
+      // ESTRATEGIAS
+      // ============================================
+      
+      if (msg.match(/estrategia|estrategias|cómo operar|como operar|técnica|táctica/i)) {
+        return '🎯 **Estrategias de Trading Populares**\n\n📈 **1. Seguimiento de Tendencia**\n• "La tendencia es tu amiga"\n• Usa medias móviles\n• Opera a favor de la tendencia\n\n⚡ **2. Breakout (Ruptura)**\n• Identifica soportes/resistencias\n• Entra cuando se rompen\n• Alto potencial de ganancia\n\n🔄 **3. Range Trading**\n• Opera entre soporte y resistencia\n• Compra en soporte, vende en resistencia\n• Mercados laterales\n\n📰 **4. Trading de Noticias**\n• Opera eventos económicos\n• NFP, tasas de interés, PIB\n• Alta volatilidad\n\n🤖 **5. Scalping**\n• Múltiples operaciones pequeñas\n• Ganancias de 5-10 pips\n• Requiere disciplina\n\n💡 ¿Quieres que te explique alguna en detalle?';
+      }
+
+      // ============================================
+      // ERRORES COMUNES
+      // ============================================
+      
+      if (msg.match(/errores|error|equivocación|equivocacion|no hacer|evitar/i) && msg.match(/trading|trader|inversión|inversion/i)) {
+        return '❌ **Errores COMUNES en Trading (evítalos)**\n\n1️⃣ **Operar sin Stop Loss**\n• Error #1 que destruye cuentas\n• SIEMPRE usa stop loss\n\n2️⃣ **Overtrading (operar mucho)**\n• Calidad > Cantidad\n• Paciencia es clave\n\n3️⃣ **Arriesgar mucho por operación**\n• No más del 2% por trade\n• El capital es lo primero\n\n4️⃣ **Operar por emociones**\n• Miedo y codicia = enemigos\n• Sigue tu plan siempre\n\n5️⃣ **No llevar registro**\n• Bitácora de trading obligatoria\n• Aprende de tus errores\n\n6️⃣ **No educarse**\n• El conocimiento es poder\n• Nunca dejes de aprender\n\n7️⃣ **Perseguir pérdidas**\n• Aceptar pérdidas es parte del juego\n• No te vengues del mercado\n\n💡 ¿Cometes alguno de estos?';
+      }
+
+      // ============================================
+      // IMPUESTOS Y LEGAL
+      // ============================================
+      
+      if (msg.match(/impuesto|impuestos|declarar|tributar|legal|ilegal/i)) {
+        return '📋 **Aspectos Legales y Fiscales del Trading**\n\n⚖️ **Legalidad:**\n• El trading es 100% LEGAL en casi todos los países\n• Debes usar brokers regulados (como AIDEX)\n\n💰 **Impuestos:**\n• SÍ debes declarar ganancias\n• Varía por país:\n  - USA: Capital gains tax\n  - UE: Según cada país (15-30%)\n  - Latinoamérica: Variable\n\n📊 **¿Qué declarar?**\n• Ganancias netas (ganancias - pérdidas)\n• Solo cuando retiras a tu banco\n• Conserva todos tus registros\n\n⚠️ **Importante:**\n• Consulta un contador especializado\n• Las leyes varían por país\n• La evasión fiscal tiene consecuencias graves\n\n💡 Consejo: Guarda historial de todas tus operaciones en AIDEX.';
+      }
+
+      // ============================================
+      // EDUCACIÓN
+      // ============================================
+      
+      if (msg.match(/aprend|curso|educa|estudi|guía|libro|webinar|material/i)) {
+        return '📚 **Recursos Educativos - AIDEX**\n\n🎓 **Cursos GRATUITOS:**\n\n1️⃣ **Principiantes**\n• ¿Qué es el trading?\n• Conceptos básicos\n• Tu primera operación\n\n2️⃣ **Intermedio**\n• Análisis técnico\n• Indicadores principales\n• Gestión de riesgo\n\n3️⃣ **Avanzado**\n• Estrategias complejas\n• Psicología del trading\n• Trading algorítmico\n\n📺 **Webinars en Vivo:**\n• Martes y Jueves 7pm\n• Análisis de mercado\n• Q&A con traders pro\n\n📖 **Libros recomendados:**\n• "Trading in the Zone" - Mark Douglas\n• "Análisis Técnico" - Murphy\n• "Reminiscencias" - Livermore\n\n📅 **Calendario Económico:**\n• Eventos que mueven mercados\n• Alertas automáticas\n\n¿Por dónde quieres empezar?';
+      }
+
+      // ============================================
+      // PSICOLOGÍA
+      // ============================================
+      
+      if (msg.match(/psicología|psicologia|emociones|miedo|codicia|disciplina|mental/i)) {
+        return '🧠 **Psicología del Trading - 80% del éxito**\n\n😨 **Emociones enemigas:**\n\n1️⃣ **MIEDO**\n• Paraliza decisiones\n• Te saca de buenas operaciones\n• Solución: Confía en tu análisis\n\n2️⃣ **CODICIA**\n• No tomar ganancias\n• Arriesgar de más\n• Solución: Sigue tu plan\n\n3️⃣ **VENGANZA**\n• Operar tras una pérdida\n• Decisiones impulsivas\n• Solución: Toma
+          // Solución: Toma un descanso
+\n\n4️⃣ **EUFORIA**\n• Exceso de confianza tras ganar\n• Romper reglas de riesgo\n• Solución: Mantén humildad\n\n✅ **Cómo desarrollar disciplina:**\n\n📋 **Plan de Trading escrito**\n• Cuándo entrar/salir\n• Cuánto arriesgar\n• Qué mercados operar\n\n📊 **Bitácora de operaciones**\n• Registra TODAS tus operaciones\n• Analiza patrones\n• Aprende de errores\n\n🧘 **Rutina pre-trading**\n• Medita 5 minutos\n• Revisa noticias\n• Verifica plan del día\n\n⏸️ **Saber parar**\n• Después de 2 pérdidas seguidas\n• Si estás emocional\n• Cuando no hay setups claros\n\n💡 "El mercado siempre estará ahí mañana". ¿Quieres tips para controlar emociones?';
+      }
+
+      // ============================================
+      // APALANCAMIENTO
+      // ============================================
+      
+      if (msg.match(/apalancamiento|leverage|margen|margin|1:100|1:200/i)) {
+        return '⚡ **Apalancamiento - Arma de doble filo**\n\n🔍 **¿Qué es?**\nOperar con más capital del que tienes.\n\n📊 **Ejemplo:**\n• Tienes: $100\n• Apalancamiento 1:100\n• Puedes operar: $10,000\n\n✅ **Ventajas:**\n• Mayores ganancias potenciales\n• Menos capital inicial necesario\n• Más oportunidades\n\n⚠️ **Riesgos:**\n• TAMBIÉN amplifica pérdidas\n• Puedes perder más rápido\n• Margin call si no hay fondos\n\n🎯 **Apalancamiento en AIDEX:**\n• Micro: 1:30\n• Estándar: 1:100\n• Profesional: 1:200\n\n💡 **Recomendación para principiantes:**\n• Usa BAJO apalancamiento (1:10 o 1:20)\n• Prioriza gestión de riesgo\n• Aumenta gradualmente con experiencia\n\n❓ ¿Quieres calcular tu exposición con apalancamiento?';
+      }
+
+      // ============================================
+      // BROKERS Y REGULACIÓN
+      // ============================================
+      
+      if (msg.match(/broker|bróker|regulación|regulacion|confiable|seguro|licencia|estafa/i)) {
+        return '🏦 **Cómo elegir un Broker Confiable**\n\n✅ **Señales de broker SEGURO:**\n\n1️⃣ **Regulación**\n• FCA (UK)\n• CySEC (Chipre)\n• ASIC (Australia)\n• SEC/CFTC (USA)\n\n2️⃣ **Segregación de fondos**\n• Tu dinero separado del broker\n• Protección en caso de quiebra\n\n3️⃣ **Transparencia**\n• Spreads claros\n• Sin comisiones ocultas\n• Retiros rápidos\n\n4️⃣ **Años de experiencia**\n• Mínimo 5 años operando\n• Buenas reseñas\n\n5️⃣ **Soporte al cliente**\n• Atención 24/5 o 24/7\n• Múltiples idiomas\n\n🚩 **Red Flags (HUIR):**\n• Prometen ganancias garantizadas\n• Piden dinero por "señales VIP"\n• No tienen regulación\n• Dificultan retiros\n• Sede en paraísos fiscales\n\n✅ **AIDEX cumple todos los estándares:**\n• Regulado internacionalmente\n• Fondos segregados\n• Retiros en 24-48h\n• Soporte 24/5\n\n¿Tienes dudas sobre seguridad?';
+      }
+
+      // ============================================
+      // HORARIOS DE MERCADO
+      // ============================================
+      
+      if (msg.match(/horario|hora|sesión|sesion|abre|cierra|mercado|cuando opera/i)) {
+        return '🕐 **Horarios de los Mercados Financieros**\n\n🌏 **FOREX (24 horas, 5 días):**\n\n• 🇦🇺 Sidney: 5pm - 2am (EST)\n• 🇯🇵 Tokio: 7pm - 4am (EST)\n• 🇬🇧 Londres: 3am - 12pm (EST)\n• 🇺🇸 New York: 8am - 5pm (EST)\n\n⚡ **Horarios de MAYOR volatilidad:**\n• Londres + NY (8am-12pm EST) ← MEJOR\n• Apertura de cualquier sesión\n\n📈 **ACCIONES:**\n• NYSE: 9:30am - 4pm (EST)\n• Pre-market: 4am - 9:30am\n• After-hours: 4pm - 8pm\n\n💎 **CRIPTOMONEDAS:**\n• 24/7 (incluye fines de semana)\n• Mayor volumen: horario USA\n\n🏆 **Mejores días para operar:**\n• Martes, Miércoles, Jueves\n• Evita: Lunes (consolidación) y Viernes (cierre semanal)\n\n💡 En AIDEX puedes operar Forex 24/5. ¿Qué horario prefieres?';
+      }
+
+      // ============================================
+      // TÉRMINOS TÉCNICOS
+      // ============================================
+      
+      if (msg.match(/pip|spread|lote|lot|swap|comisión|comision/i)) {
+        return '📖 **Glosario de Trading**\n\n📍 **PIP**\n• Unidad mínima de precio\n• Ej: EUR/USD de 1.1000 a 1.1001 = 1 pip\n• 4º decimal en pares mayores\n\n📏 **SPREAD**\n• Diferencia entre compra (ASK) y venta (BID)\n• Es el "costo" de operar\n• Ejemplo: BID 1.1000 / ASK 1.1002 = 2 pips spread\n\n📦 **LOTE**\n• Tamaño de la operación\n• Lote estándar = 100,000 unidades\n• Mini lote = 10,000\n• Micro lote = 1,000\n\n💤 **SWAP**\n• Interés por mantener posición de un día a otro\n• Puede ser positivo o negativo\n• Depende de tasas de interés\n\n💰 **COMISIÓN**\n• Tarifa por operación\n• AIDEX: sin comisiones en Forex\n• Solo spreads\n\n📊 **MARGEN**\n• Garantía para mantener posición\n• Ej: $100 margen para operar $10,000\n\n⚠️ **MARGIN CALL**\n• Alerta: fondos insuficientes\n• ¡Agrega capital o cierra posiciones!\n\n¿Necesitas explicación de algún otro término?';
+      }
+
+      // ============================================
+      // COMPARACIONES Y VS
+      // ============================================
+      
+      if (msg.match(/diferencia entre|vs|versus|mejor que|comparación|comparacion/i)) {
+        if (msg.match(/forex.*acciones|acciones.*forex|forex.*stocks|stocks.*forex/i)) {
+          return '⚔️ **FOREX vs ACCIONES**\n\n💱 **FOREX:**\n✅ Opera 24/5\n✅ Mayor liquidez\n✅ Menos capital inicial\n✅ Apalancamiento alto\n❌ Solo 28 pares principales\n\n📈 **ACCIONES:**\n✅ Miles de opciones\n✅ Dividendos\n✅ Más fácil análisis fundamental\n❌ Opera solo 6.5h/día\n❌ Menos apalancamiento\n❌ Mayor capital inicial\n\n🎯 **¿Cuál elegir?**\n• Forex: Si quieres flexibilidad horaria\n• Acciones: Si te gusta investigar empresas\n\n💡 En AIDEX puedes operar AMBOS. ¿Quieres empezar?';
+        }
+        
+        if (msg.match(/criptos.*forex|forex.*criptos|crypto.*forex|forex.*crypto/i)) {
+          return '⚔️ **FOREX vs CRIPTOMONEDAS**\n\n💱 **FOREX:**\n✅ Menos volatilidad\n✅ Más predecible\n✅ Spreads bajos\n✅ Alta liquidez\n❌ Movimientos pequeños\n❌ Opera 24/5 (no fines de semana)\n\n💎 **CRIPTOS:**\n✅ Opera 24/7 (incluye fines de semana)\n✅ Alta volatilidad = grandes oportunidades\n✅ Mercado en crecimiento\n❌ Más riesgo\n❌ Spreads más altos\n❌ Menos predecible\n\n🎯 **Recomendación:**\n• Principiantes: Forex (más estable)\n• Experimentados: Criptos (mayor riesgo/recompensa)\n• Ideal: Combinar ambos (diversificación)\n\n💡 En AIDEX: ambos disponibles. ¿Cuál prefieres?';
+        }
+      }
+
+      // ============================================
+      // SALUDOS Y GENERALES
+      // ============================================
+      
+      if (msg.match(/hola|hey|buenos|buenas|hi|hello/i)) {
+        return '👋 ¡Hola! Bienvenido a AIDEX.\n\n🤖 Soy tu asistente y puedo ayudarte con:\n\n📊 **Trading & Inversiones**\n• Conceptos básicos y avanzados\n• Estrategias\n• Análisis de mercado\n\n🧮 **Calculadora**\n• Operaciones matemáticas\n• Conversión de monedas\n• Porcentajes\n\n💡 **Ejemplos de preguntas:**\n• "¿Qué es el trading?"\n• "Mejores criptomonedas 2024"\n• "Calcula 2500 * 15%"\n• "Convierte 100 USD a EUR"\n• "¿Cuándo debo invertir?"\n\n¿En qué puedo ayudarte hoy? 😊';
+      }
+
+      if (msg.match(/gracias|thanks|thx|agradec/i)) {
+        return '¡De nada! 😊 Es un placer ayudarte.\n\n💡 Recuerda:\n• Practica primero en demo\n• Gestión de riesgo SIEMPRE\n• Educación continua\n• Trading responsable\n\n🚀 ¿Hay algo más en lo que pueda asistirte?\n\nSi estás listo, ¡abre tu cuenta demo gratuita en AIDEX y empieza tu camino como trader!';
+      }
+
+      if (msg.match(/adiós|adios|bye|chao|hasta luego/i)) {
+        return '👋 ¡Hasta pronto!\n\n🎯 Antes de irte:\n• Descarga MT4/MT5\n• Abre tu cuenta demo\n• Únete a nuestros webinars\n\n💪 ¡Mucho éxito en tu journey como trader!\n\nVuelve cuando necesites ayuda. AIDEX está aquí para ti 24/5. 🚀';
+      }
+
+      // ============================================
+      // RESPUESTA GENÉRICA
+      // ============================================
+      
+      return `🤔 Interesante pregunta sobre "${userMessage}".\n\nPuedo ayudarte con:\n\n📊 **Trading & Mercados**\n• Forex, Acciones, Criptos\n• Análisis técnico\n• Estrategias\n• Historia del trading\n\n🧮 **Calculadora**\n• Matemáticas básicas\n• Conversión de monedas\n• Porcentajes\n\n💡 **Ejemplos:**\n"¿Qué es Forex?" / "Historia de Bitcoin" / "Calcula 500 + 300" / "Mejores inversiones"\n\n¿Podrías ser más específico? 😊`;
+    }
+
+    // ============================================
+    // FUNCIONES DE CALCULADORA
+    // ============================================
+    
+    function calcular(msg) {
       try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // 👇👇👇 REEMPLAZA "TU_API_KEY_AQUI" CON TU NUEVA API KEY 👇👇👇
-            "Authorization": "Bearer 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"
-            // ☝️☝️☝️ Ejemplo: "Bearer sk-proj-AbCdEfGh123456..." ☝️☝️☝️
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: conversationHistory,
-            max_tokens: 1000,
-            temperature: 0.7
-          })
-        });
+        // Limpiar el mensaje
+        let expresion = msg
+          .replace(/calcula|calcular|cuánto es|cuanto es/gi, '')
+          .replace(/x/g, '*')
+          .replace(/÷/g, '/')
+          .trim();
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('Error de OpenAI:', errorData);
-          throw new Error(`Error ${response.status}: ${errorData.error?.message || 'Error desconocido'}`);
+        // Detectar porcentajes
+        if (expresion.match(/(\d+\.?\d*)\s*%\s*de\s*(\d+\.?\d*)/i)) {
+          const match = expresion.match(/(\d+\.?\d*)\s*%\s*de\s*(\d+\.?\d*)/i);
+          const porcentaje = parseFloat(match[1]);
+          const cantidad = parseFloat(match[2]);
+          const resultado = (cantidad * porcentaje) / 100;
+          return `🧮 **Cálculo de Porcentaje**\n\n${porcentaje}% de ${cantidad} = **${resultado.toFixed(2)}**\n\n📊 También:\n• ${cantidad} + ${porcentaje}% = ${(cantidad + resultado).toFixed(2)}\n• ${cantidad} - ${porcentaje}% = ${(cantidad - resultado).toFixed(2)}`;
         }
 
-        const data = await response.json();
+        // Evaluar expresión matemática
+        expresion = expresion.replace(/[^0-9+\-*/().\s]/g, '');
         
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-          return data.choices[0].message.content;
-        } else if (data.error) {
-          console.error('Error de OpenAI:', data.error);
-          throw new Error(data.error.message);
-        } else {
-          throw new Error('Respuesta inesperada de la API');
+        if (!expresion) {
+          return '🧮 **Calculadora AIDEX**\n\n📝 Puedes pedirme:\n• Suma: "2500 + 1800"\n• Resta: "5000 - 2300"\n• Multiplicación: "250 * 4"\n• División: "1000 / 8"\n• Porcentajes: "15% de 2500"\n\n¿Qué quieres calcular?';
         }
+
+        const resultado = eval(expresion);
+        
+        if (isNaN(resultado)) {
+          return '❌ No pude calcular eso. \n\nEjemplos válidos:\n• "2500 + 1500"\n• "100 * 25"\n• "15% de 3000"';
+        }
+
+        return `🧮 **Resultado del cálculo**\n\n${expresion} = **${resultado.toLocaleString('es-ES', {maximumFractionDigits: 2})}**\n\n💡 ¿Necesitas otro cálculo?`;
       } catch (error) {
-        console.error('Error completo:', error);
+        return '❌ Error en el cálculo.\n\n✅ Ejemplos correctos:\n• "250 + 150"\n• "1000 * 0.15"\n• "20% de 5000"';
+      }
+    }
+
+    function convertirMoneda(msg) {
+      // Tasas de cambio aproximadas (actualizar periódicamente)
+      const tasas = {
+        'USD': 1,
+        'EUR': 0.92,
+        'GBP': 0.79,
+        'JPY': 149.50,
+        'CAD': 1.36,
+        'AUD': 1.52,
+        'CHF': 0.88,
+        'MXN': 17.20,
+        'PEN': 3.70,
+        'COP': 3950,
+        'ARS': 350,
+        'BRL': 4.98,
+        'CLP': 920
+      };
+
+      try {
+        // Detectar patrón: "convierte X USD a EUR" o "100 USD a EUR"
+        const match = msg.match(/(\d+\.?\d*)\s*([A-Z]{3})\s*(?:a|to)\s*([A-Z]{3})/i);
         
-        // Mensajes de error específicos
-        if (error.message.includes('401') || error.message.includes('Incorrect API key')) {
-          return '🔑 Error de autenticación. La API key no es válida o está mal configurada.';
-        } else if (error.message.includes('429') || error.message.includes('Rate limit')) {
-          return '⏱️ Límite de uso alcanzado. Por favor espera un momento e intenta nuevamente.';
-        } else if (error.message.includes('quota') || error.message.includes('insufficient_quota')) {
-          return '💳 Has alcanzado el límite de tu plan gratuito. Necesitas añadir crédito en OpenAI.';
-        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-          return '🌐 Error de conexión. Verifica tu conexión a internet e intenta nuevamente.';
+        if (!match) {
+          return '💱 **Conversor de Monedas**\n\n📝 Formato:\n"Convierte 100 USD a EUR"\n"500 EUR a JPY"\n"1000 MXN a USD"\n\n💵 **Monedas disponibles:**\nUSD, EUR, GBP, JPY, CAD, AUD, CHF, MXN, PEN, COP, ARS, BRL, CLP\n\n¿Qué conversión necesitas?';
         }
-        
-        return '❌ Error: ' + error.message + '\n\nPor favor intenta nuevamente.';
+
+        const cantidad = parseFloat(match[1]);
+        const desde = match[2].toUpperCase();
+        const hacia = match[3].toUpperCase();
+
+        if (!tasas[desde] || !tasas[hacia]) {
+          return `❌ Moneda no disponible.\n\n✅ Monedas soportadas:\nUSD, EUR, GBP, JPY, CAD, AUD, CHF, MXN, PEN, COP, ARS, BRL, CLP`;
+        }
+
+        // Convertir a USD primero, luego a la moneda destino
+        const enUSD = cantidad / tasas[desde];
+        const resultado = enUSD * tasas[hacia];
+
+        return `💱 **Conversión de Moneda**\n\n${cantidad} ${desde} = **${resultado.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${hacia}**\n\n📊 Tasa: 1 ${desde} = ${(tasas[hacia]/tasas[desde]).toFixed(4)} ${hacia}\n\n⚠️ *Tasas aproximadas, pueden variar*\n\n💡 ¿Otra conversión?`;
+      } catch (error) {
+        return '❌ Error en la conversión.\n\nEjemplo: "Convierte 100 USD a EUR"';
       }
     }
   </script>
